@@ -47,7 +47,6 @@ class CareerBrand
         return [
             ...$brand,
             'key' => $brandKey,
-            'contact_emails' => config('careers.contact_emails', []),
             'phone' => config('careers.phone'),
             'whatsapp_url' => 'https://wa.me/'.self::whatsAppNumber((string) config('careers.phone')),
         ];

@@ -4,12 +4,12 @@
     $applicantName = $applicantName ?? data_get($applicant ?? null, 'full_name', 'Kandidat');
     $positionName = $positionName ?? data_get($applicant ?? null, 'jobVacancy.name', 'Posisi yang dilamar');
     $submittedAt = $submittedAt ?? data_get($applicant ?? null, 'created_at');
-    $contactEmails = $contactEmails ?? $brand['contact_emails'] ?? [$brand['email']];
-    $contactEmails = is_array($contactEmails) ? array_values(array_filter($contactEmails)) : [$contactEmails];
-    $logoPath = public_path($brand['logo']);
-    $logoSource = isset($message) && is_file($logoPath) ? $message->embed($logoPath) : asset($brand['logo']);
+    $contactEmail = $contactEmail ?? $brand['email'];
+    $logoSource = $brand['logo_url'] ?? asset($brand['logo']);
     $primaryColor = $brand['primary_color'] ?? '#304767';
     $accentColor = $brand['accent_color'] ?? '#2563eb';
+    $headerBackgroundColor = $brand['header_background_color'] ?? $primaryColor;
+    $headerTextColor = $brand['header_text_color'] ?? '#ffffff';
 
     $content = match ($statusValue) {
         1 => [
@@ -57,10 +57,10 @@
             <td align="center">
                 <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="max-width: 640px; background: #ffffff; border-collapse: collapse;">
                     <tr>
-                        <td style="background: {{ $primaryColor }}; padding: 28px 32px;">
+                        <td style="background: {{ $headerBackgroundColor }}; padding: 28px 32px; border-bottom: 4px solid {{ $primaryColor }};">
                             <img src="{{ $logoSource }}" alt="{{ $brand['name'] }}" width="132" style="display: block; max-width: 132px; height: auto;">
-                            <p style="margin: 22px 0 6px; color: #c9d6e7; font-size: 13px; line-height: 1.5;">Status Lamaran</p>
-                            <h1 style="margin: 0; color: #ffffff; font-size: 26px; line-height: 1.25; font-weight: 700;">{{ $content['title'] }}</h1>
+                            <p style="margin: 22px 0 6px; color: {{ $accentColor }}; font-size: 13px; line-height: 1.5; font-weight: 700;">Status Lamaran</p>
+                            <h1 style="margin: 0; color: {{ $headerTextColor }}; font-size: 26px; line-height: 1.25; font-weight: 700;">{{ $content['title'] }}</h1>
                         </td>
                     </tr>
 
@@ -139,9 +139,7 @@
                         <td style="padding: 22px 32px; background: #f8fafc; border-top: 1px solid #dbe3ee;">
                             <p style="margin: 0; color: #48566d; font-size: 13px; line-height: 1.7;">
                                 Jika ada pertanyaan, silakan hubungi kami melalui
-                                @foreach ($contactEmails as $email)
-                                    <a href="mailto:{{ $email }}" style="color: {{ $accentColor }}; text-decoration: none;">{{ $email }}</a>@if ($loop->last).@else, @endif
-                                @endforeach
+                                <a href="mailto:{{ $contactEmail }}" style="color: {{ $accentColor }}; text-decoration: none;">{{ $contactEmail }}</a>.
                             </p>
                             <p style="margin: 16px 0 0; color: #94a3b8; font-size: 12px; line-height: 1.6;">
                                 Email ini dikirim otomatis oleh sistem rekrutmen {{ $brand['name'] }}. Mohon tidak membalas langsung email ini.
