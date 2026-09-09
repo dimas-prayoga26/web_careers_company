@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="120" height="120" viewBox="0 0 120 120" role="img" aria-label="PDF file">
+  <rect x="26" y="12" width="58" height="82" rx="10" fill="#f43f5e"/>
+  <path d="M84 12v24h24" fill="#fecdd3"/>
+  <path d="M84 12l24 24H84z" fill="#fb7185"/>
+  <rect x="14" y="54" width="84" height="36" rx="8" fill="#be123c"/>
+  <text x="56" y="78" text-anchor="middle" font-family="Arial, sans-serif" font-size="24" font-weight="700" fill="#fff">PDF</text>
+  <circle cx="91" cy="86" r="21" fill="#22c55e"/>
+  <path d="M91 75v22M80 86h22" stroke="#fff" stroke-width="7" stroke-linecap="round"/>
+</svg>
