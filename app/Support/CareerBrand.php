@@ -16,10 +16,11 @@ class CareerBrand
         $request ??= request();
 
         $host = Str::lower($request->getHost());
+        $domainBrandKey = config('careers.domains')[$host] ?? null;
         $brandKey = $request->string('brand')->lower()->toString()
             ?: $request->string('brand_key')->lower()->toString()
+            ?: $domainBrandKey
             ?: session('career_brand')
-            ?: config("careers.domains.{$host}")
             ?: config('careers.default_brand');
         $brandKey = config("careers.aliases.{$brandKey}", $brandKey);
 

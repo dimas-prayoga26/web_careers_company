@@ -54,10 +54,8 @@ class ApplicantStatusMail extends Mailable
 
     private function subjectText(): string
     {
-        return match ((int) $this->applicant->status?->value) {
-            1 => 'Anda Diundang Interview - '.$this->brand['name'],
-            2 => 'Selamat, Anda Diterima - '.$this->brand['name'],
-            default => 'Lamaran Anda Sudah Terkirim - '.$this->brand['name'],
-        };
+        $statusName = $this->applicant->status?->name ?? 'Submitted';
+
+        return 'Status Lamaran Anda: '.$statusName.' - '.$this->brand['name'];
     }
 }

@@ -167,7 +167,9 @@ class CareerController extends Controller
         }
 
         try {
-            Mail::to($applicant->email)->send(new ApplicantStatusMail($applicant, $brand));
+            Mail::mailer($this->mailerForBrand($brand))
+                ->to($applicant->email)
+                ->send(new ApplicantStatusMail($applicant, $brand));
         } catch (Throwable $exception) {
             report($exception);
         }
@@ -268,5 +270,13 @@ class CareerController extends Controller
         }
 
         return $slug;
+    }
+
+    /**
+     * @param  array<string, mixed>  $brand
+     */
+    private function mailerForBrand(array $brand): string
+    {
+        return (string) ($brand['mailer'] ?? config('mail.default'));
     }
 }

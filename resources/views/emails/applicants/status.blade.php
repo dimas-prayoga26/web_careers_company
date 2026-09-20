@@ -1,6 +1,7 @@
 @php
     $brand = $brand ?? \App\Support\CareerBrand::brand(null);
     $statusValue = (int) ($statusValue ?? data_get($applicant ?? null, 'status.value', 0));
+    $statusName = $statusName ?? data_get($applicant ?? null, 'status.name', 'Submitted');
     $applicantName = $applicantName ?? data_get($applicant ?? null, 'full_name', 'Kandidat');
     $positionName = $positionName ?? data_get($applicant ?? null, 'jobVacancy.name', 'Posisi yang dilamar');
     $submittedAt = $submittedAt ?? data_get($applicant ?? null, 'created_at');
@@ -13,33 +14,42 @@
 
     $content = match ($statusValue) {
         1 => [
-            'label' => 'Interview',
-            'title' => 'Anda Diundang Interview',
-            'intro' => 'Lamaran Anda telah kami review dan Anda masuk ke tahap interview.',
-            'message' => 'Mohon mempersiapkan diri dengan baik. Tim rekrutmen akan menghubungi Anda untuk konfirmasi teknis interview.',
+            'title' => 'Update Status Lamaran',
+            'intro' => 'Lamaran Anda saat ini berada di tahap '.$statusName.'.',
+            'message' => 'Tim rekrutmen sedang meninjau kesesuaian awal profil Anda dengan kebutuhan posisi.',
             'badgeColor' => $accentColor,
         ],
         2 => [
-            'label' => 'Diterima',
-            'title' => 'Selamat, Anda Diterima',
-            'intro' => 'Dengan senang hati kami informasikan bahwa Anda diterima untuk melanjutkan proses bersama '.$brand['name'].'.',
-            'message' => 'Tim kami akan menghubungi Anda untuk informasi berikutnya terkait administrasi dan jadwal bergabung.',
+            'title' => 'Update Status Lamaran',
+            'intro' => 'Lamaran Anda saat ini berada di tahap '.$statusName.'.',
+            'message' => 'Mohon mempersiapkan diri untuk proses penilaian teknis sesuai kebutuhan posisi yang Anda lamar.',
+            'badgeColor' => $accentColor,
+        ],
+        3 => [
+            'title' => 'Update Status Lamaran',
+            'intro' => 'Lamaran Anda saat ini berada di tahap '.$statusName.'.',
+            'message' => 'Anda sedang berada pada proses interview dengan user terkait posisi yang dilamar.',
+            'badgeColor' => $accentColor,
+        ],
+        4 => [
+            'title' => 'Update Status Lamaran',
+            'intro' => 'Lamaran Anda saat ini berada di tahap '.$statusName.'.',
+            'message' => 'Tim kami akan menghubungi Anda untuk informasi berikutnya terkait offering.',
             'badgeColor' => '#16a34a',
         ],
+        5 => [
+            'title' => 'Update Status Lamaran',
+            'intro' => 'Status lamaran Anda saat ini adalah '.$statusName.'.',
+            'message' => 'Terima kasih atas waktu dan ketertarikan Anda untuk bergabung bersama '.$brand['name'].'.',
+            'badgeColor' => '#dc2626',
+        ],
         default => [
-            'label' => 'Submitted',
-            'title' => 'Lamaran Anda Sudah Terkirim',
-            'intro' => 'Terima kasih, lamaran Anda telah berhasil kami terima.',
-            'message' => 'Mohon menunggu proses review dari tim rekrutmen kami. Jika profil Anda sesuai dengan kebutuhan posisi, kami akan menghubungi Anda untuk tahap interview.',
+            'title' => 'Update Status Lamaran',
+            'intro' => 'Lamaran Anda saat ini berada di tahap '.$statusName.'.',
+            'message' => 'Mohon menunggu proses review dari tim rekrutmen kami. Jika profil Anda sesuai dengan kebutuhan posisi, kami akan menghubungi Anda untuk tahap berikutnya.',
             'badgeColor' => $accentColor,
         ],
     };
-
-    $steps = [
-        ['value' => 0, 'label' => 'Submitted', 'description' => 'Lamaran diterima'],
-        ['value' => 1, 'label' => 'Interview', 'description' => 'Seleksi lanjutan'],
-        ['value' => 2, 'label' => 'Diterima', 'description' => 'Hasil akhir'],
-    ];
 @endphp
 
 <!doctype html>
@@ -76,7 +86,13 @@
                         <td style="padding: 0 32px 24px;">
                             <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="border: 1px solid #dbe3ee; border-collapse: collapse;">
                                 <tr>
-                                    <td style="padding: 16px 18px; border-bottom: 1px solid #dbe3ee; background: #f8fafc;">
+                                    <td style="padding: 18px; border-bottom: 1px solid #dbe3ee; background: #f8fafc;">
+                                        <p style="margin: 0; color: #64748b; font-size: 12px;">Status Saat Ini</p>
+                                        <p style="margin: 8px 0 0; color: {{ $content['badgeColor'] }}; font-size: 20px; font-weight: 700;">{{ $statusName }}</p>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td style="padding: 16px 18px; border-bottom: 1px solid #dbe3ee;">
                                         <p style="margin: 0; color: #64748b; font-size: 12px;">Posisi Dilamar</p>
                                         <p style="margin: 6px 0 0; color: #172033; font-size: 15px; font-weight: 700;">{{ $positionName }}</p>
                                     </td>
@@ -89,48 +105,6 @@
                                         </p>
                                     </td>
                                 </tr>
-                            </table>
-                        </td>
-                    </tr>
-
-                    <tr>
-                        <td style="padding: 0 32px 28px;">
-                            <h2 style="margin: 0 0 16px; font-size: 18px; color: #172033;">Track Record Lamaran</h2>
-
-                            <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="border-collapse: collapse;">
-                                @foreach ($steps as $index => $step)
-                                    @php
-                                        $isDone = $statusValue > $step['value'];
-                                        $isCurrent = $statusValue === $step['value'];
-                                        $circleBackground = $isDone || $isCurrent ? $primaryColor : '#e2e8f0';
-                                        $circleColor = $isDone || $isCurrent ? '#ffffff' : '#64748b';
-                                        $lineColor = $statusValue > $step['value'] ? $primaryColor : '#e2e8f0';
-                                    @endphp
-
-                                    <tr>
-                                        <td width="34" valign="top" style="padding: 0;">
-                                            <div style="width: 26px; height: 26px; border-radius: 50%; background: {{ $circleBackground }}; color: {{ $circleColor }}; text-align: center; line-height: 26px; font-size: 13px; font-weight: 700;">
-                                                @if ($isDone)
-                                                    &#10003;
-                                                @else
-                                                    {{ $index + 1 }}
-                                                @endif
-                                            </div>
-                                            @if (! $loop->last)
-                                                <div style="width: 2px; height: 34px; margin-left: 12px; background: {{ $lineColor }};"></div>
-                                            @endif
-                                        </td>
-                                        <td valign="top" style="padding: 2px 0 18px;">
-                                            <p style="margin: 0; font-size: 15px; color: #172033; font-weight: 700;">
-                                                {{ $step['label'] }}
-                                                @if ($isCurrent)
-                                                    <span style="color: {{ $content['badgeColor'] }}; font-size: 12px; font-weight: 700;">Sedang berjalan</span>
-                                                @endif
-                                            </p>
-                                            <p style="margin: 5px 0 0; color: #64748b; font-size: 13px; line-height: 1.5;">{{ $step['description'] }}</p>
-                                        </td>
-                                    </tr>
-                                @endforeach
                             </table>
                         </td>
                     </tr>
