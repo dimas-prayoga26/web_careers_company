@@ -28,6 +28,7 @@ class CareerBrandTest extends TestCase
         $response->assertSee('Niskala');
         $response->assertSee('Go to Niskala');
         $response->assertSee('https://coffeeniskala.com/', false);
+        $response->assertSee('images/Logo Niskala.png', false);
     }
 
     public function test_success_page_links_rnb_careers_domain_to_rnb_main_website(): void

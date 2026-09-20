@@ -9,7 +9,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
     <link rel="stylesheet" href="{{ asset('assets/svg/svg-icons-animate.css') }}">
     <link rel="stylesheet" href="{{ asset('assets/css/style.css') }}">
-    <link rel="icon" href="{{ asset('assets/img/favicon.png') }}">
+    <link rel="icon" href="{{ asset($brand['favicon'] ?? $brand['logo']) }}">
 </head>
 
 <body class="snippet-body">

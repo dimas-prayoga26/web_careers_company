@@ -48,6 +48,7 @@ return [
         'rnb' => [
             'name' => 'RNB Management',
             'logo' => 'images/Logo RNB.png',
+            'favicon' => 'images/Logo RNB.png',
             'logo_url' => 'https://raw.githubusercontent.com/dimas-prayoga26/web_careers_company/main/public/images/Logo%20RNB.png',
             'website' => 'https://rnb.co.id/',
             'email' => 'hr@rnb.co.id',
@@ -60,6 +61,7 @@ return [
         'andalanku' => [
             'name' => 'AndalanKu',
             'logo' => 'images/Logo AndalanKu.png',
+            'favicon' => 'images/Logo AndalanKu.png',
             'logo_url' => 'https://raw.githubusercontent.com/dimas-prayoga26/web_careers_company/main/public/images/Logo%20AndalanKu.png',
             'website' => 'https://andalanku.com/',
             'email' => 'recruitment@andalanku.com',
@@ -71,6 +73,7 @@ return [
         'kma' => [
             'name' => 'KMA',
             'logo' => 'images/Logo KMA.png',
+            'favicon' => 'images/Logo KMA.png',
             'logo_url' => 'https://raw.githubusercontent.com/dimas-prayoga26/web_careers_company/main/public/images/Logo%20KMA.png',
             'website' => 'https://karpetmerah.id/',
             'email' => 'hr@karpetmerah.id',
@@ -83,6 +86,7 @@ return [
         'niskala' => [
             'name' => 'Niskala',
             'logo' => 'images/Logo Niskala.png',
+            'favicon' => 'images/Logo Niskala.png',
             'logo_url' => 'https://raw.githubusercontent.com/dimas-prayoga26/web_careers_company/main/public/images/Logo%20Niskala.png',
             'website' => 'https://coffeeniskala.com/',
             'email' => 'hr@coffeeniskala.com',
@@ -95,6 +99,7 @@ return [
         'rne' => [
             'name' => 'RNE',
             'logo' => 'images/Logo RNE.png',
+            'favicon' => 'images/Logo RNE.png',
             'logo_url' => 'https://raw.githubusercontent.com/dimas-prayoga26/web_careers_company/main/public/images/Logo%20RNE.png',
             'website' => 'https://rne.co.id/',
             'email' => 'hr@rne.co.id',
@@ -107,6 +112,7 @@ return [
         'tms' => [
             'name' => 'TMS',
             'logo' => 'images/Logo TMS.png',
+            'favicon' => 'images/Logo TMS.png',
             'logo_url' => 'https://raw.githubusercontent.com/dimas-prayoga26/web_careers_company/main/public/images/Logo%20TMS.png',
             'website' => 'https://tims.co.id/',
             'email' => 'hr@tims.co.id',
@@ -119,6 +125,7 @@ return [
         'trah' => [
             'name' => 'Trah',
             'logo' => 'images/Logo Trah.png',
+            'favicon' => 'images/Logo Trah.png',
             'logo_url' => 'https://raw.githubusercontent.com/dimas-prayoga26/web_careers_company/main/public/images/Logo%20Trah.png',
             'website' => 'https://trah.co.id/',
             'email' => 'hr@trah.co.id',
