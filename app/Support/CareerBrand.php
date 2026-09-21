@@ -45,6 +45,11 @@ class CareerBrand
 
         $brand = config("careers.brands.{$brandKey}", config("careers.brands.{$defaultBrandKey}"));
 
+        if (! is_array($brand)) {
+            $brandKey = $defaultBrandKey;
+            $brand = (array) config("careers.brands.{$defaultBrandKey}", []);
+        }
+
         return [
             ...$brand,
             'key' => $brandKey,

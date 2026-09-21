@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Models\Applicant;
 use App\Support\CareerBrand;
 use Illuminate\Http\Request;
 use Tests\TestCase;
@@ -39,5 +40,26 @@ class CareerBrandTest extends TestCase
         $response->assertSee('RNB Management');
         $response->assertSee('Go to RNB Management');
         $response->assertSee('https://rnb.co.id/', false);
+    }
+
+    public function test_applicant_accepts_resolved_brand_key_for_storage(): void
+    {
+        $applicant = new Applicant([
+            'brand_key' => 'tms',
+        ]);
+
+        $this->assertSame('tms', $applicant->brand_key);
+    }
+
+    public function test_brand_falls_back_to_default_when_requested_brand_config_is_missing(): void
+    {
+        config([
+            'careers.brands.unknown' => null,
+        ]);
+
+        $brand = CareerBrand::brand('unknown');
+
+        $this->assertSame('rnb', $brand['key']);
+        $this->assertSame('RNB Management', $brand['name']);
     }
 }

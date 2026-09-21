@@ -40,6 +40,7 @@ class CareerController extends Controller
 
         $validated = $request->validate([
             'full_name' => ['required', 'string', 'max:255'],
+            'brand_key' => ['nullable', 'string', 'max:64'],
             'nickname' => ['required', 'string', 'max:255'],
             'pob' => ['required', 'string', 'max:255'],
             'dob' => ['required', 'date'],
@@ -94,7 +95,7 @@ class CareerController extends Controller
         $storedFiles = [];
 
         try {
-            $applicant = DB::transaction(function () use ($request, $validated, &$storedFiles): Applicant {
+            $applicant = DB::transaction(function () use ($request, $validated, $brand, &$storedFiles): Applicant {
                 $now = now();
                 $nameSlug = Str::slug($validated['full_name']) ?: 'applicant';
                 $random = Str::random(5);
@@ -107,6 +108,7 @@ class CareerController extends Controller
 
                 $applicant = Applicant::create([
                     'job_vacancy_id' => $validated['job_vacancy_id'] ?? null,
+                    'brand_key' => $brand['key'],
                     'slug' => $this->uniqueSlug($validated['full_name']),
                     'applicant_status_id' => ApplicantStatus::where('value', 0)->value('id'),
                     'full_name' => $validated['full_name'],
