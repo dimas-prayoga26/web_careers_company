@@ -19,6 +19,7 @@ use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
+use Illuminate\Validation\Rule;
 use Illuminate\View\View;
 use Throwable;
 
@@ -69,7 +70,11 @@ class CareerController extends Controller
             'start_date.*' => ['required', 'date_format:Y-m'],
             'end_date' => ['required', 'array', 'min:1'],
             'end_date.*' => ['required', 'date_format:Y-m'],
-            'job_vacancy_id' => ['nullable', 'uuid', 'exists:job_vacancies,id'],
+            'job_vacancy_id' => [
+                'nullable',
+                'uuid',
+                Rule::exists((new JobVacancy)->getTable(), 'id')->where('status', JobVacancy::STATUS_ACTIVE),
+            ],
             'expected_salary' => ['required', 'numeric', 'min:0'],
             'self_resume' => ['required', 'string'],
             'portfolio_web_address' => ['required', 'url', 'regex:/^https:\/\//i', 'max:1000'],
@@ -100,12 +105,7 @@ class CareerController extends Controller
                 $cvName = $this->moveUploadedFile($request, 'cv', 'files/cv', $nameSlug, $random);
                 $storedFiles[] = ['files/cv', $cvName];
 
-                $legacyApplicantId = ((int) Applicant::withTrashed()
-                    ->lockForUpdate()
-                    ->max('legacy_applicant_id')) + 1;
-
                 $applicant = Applicant::create([
-                    'legacy_applicant_id' => $legacyApplicantId,
                     'job_vacancy_id' => $validated['job_vacancy_id'] ?? null,
                     'slug' => $this->uniqueSlug($validated['full_name']),
                     'applicant_status_id' => ApplicantStatus::where('value', 0)->value('id'),
@@ -124,7 +124,6 @@ class CareerController extends Controller
                     'cv' => $cvName,
                     'photo' => $photoName,
                     'agreement' => implode('||', $validated['agreement']),
-                    'legacy_created_at' => $now,
                     'created_at' => $now,
                     'updated_at' => $now,
                 ]);
@@ -199,24 +198,49 @@ class CareerController extends Controller
     {
         $brand = CareerBrand::resolve($request);
 
+        return [
+            'brand' => $brand,
+            'genders' => $this->activeGenders(),
+            'maritalStatuses' => $this->activeMaritalStatuses(),
+            'educationLevels' => $this->educationLevels(),
+            'jobVacancies' => $this->activeJobVacancies(),
+            'turnstileSiteKey' => config('services.turnstile.site_key'),
+        ];
+    }
+
+    private function activeGenders(): Collection
+    {
         try {
-            return [
-                'brand' => $brand,
-                'genders' => Gender::where('is_active', true)->orderBy('id')->get(),
-                'maritalStatuses' => MaritalStatus::where('is_active', true)->orderBy('id')->get(),
-                'educationLevels' => EducationLevel::orderBy('legacy_value')->orderBy('name')->get(),
-                'jobVacancies' => JobVacancy::orderBy('name')->get(),
-                'turnstileSiteKey' => config('services.turnstile.site_key'),
-            ];
+            return Gender::where('is_active', true)->orderBy('id')->get();
         } catch (QueryException) {
-            return [
-                'brand' => $brand,
-                'genders' => collect(),
-                'maritalStatuses' => collect(),
-                'educationLevels' => collect(),
-                'jobVacancies' => collect(),
-                'turnstileSiteKey' => config('services.turnstile.site_key'),
-            ];
+            return collect();
+        }
+    }
+
+    private function activeMaritalStatuses(): Collection
+    {
+        try {
+            return MaritalStatus::where('is_active', true)->orderBy('id')->get();
+        } catch (QueryException) {
+            return collect();
+        }
+    }
+
+    private function educationLevels(): Collection
+    {
+        try {
+            return EducationLevel::orderBy('name')->get();
+        } catch (QueryException) {
+            return collect();
+        }
+    }
+
+    private function activeJobVacancies(): Collection
+    {
+        try {
+            return JobVacancy::active()->orderBy('name')->get();
+        } catch (QueryException) {
+            return collect();
         }
     }
 

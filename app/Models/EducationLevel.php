@@ -10,9 +10,6 @@ class EducationLevel extends Model
     use HasUuids;
 
     protected $fillable = [
-        'legacy_education_level_id',
-        'legacy_value',
         'name',
-        'legacy_created_at',
     ];
 }

@@ -13,7 +13,6 @@ class Applicant extends Model
     use HasUuids, SoftDeletes;
 
     protected $fillable = [
-        'legacy_applicant_id',
         'job_vacancy_id',
         'slug',
         'applicant_status_id',
@@ -26,14 +25,12 @@ class Applicant extends Model
         'gender_id',
         'marital_status_id',
         'address',
-        'job_applied_legacy_value',
         'expected_salary',
         'self_resume',
         'portfolio_web_address',
         'cv',
         'photo',
         'agreement',
-        'legacy_created_at',
     ];
 
     public function status(): BelongsTo
