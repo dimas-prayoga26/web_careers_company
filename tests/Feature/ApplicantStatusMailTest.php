@@ -43,6 +43,8 @@ class ApplicantStatusMailTest extends TestCase
         $mailable->assertSeeInHtml('Status Saat Ini');
         $mailable->assertSeeInHtml('User Interview');
         $mailable->assertSeeInHtml('IT Programmer');
+        $mailable->assertDontSeeInHtml('Jika ada pertanyaan');
+        $mailable->assertDontSeeInHtml('noreply@coffeeniskala.com');
         $mailable->assertDontSeeInHtml('Track Record Lamaran');
         $mailable->assertDontSeeInHtml('Diterima');
     }

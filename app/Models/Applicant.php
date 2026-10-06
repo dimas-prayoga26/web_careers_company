@@ -29,8 +29,6 @@ class Applicant extends Model
         'expected_salary',
         'self_resume',
         'portfolio_web_address',
-        'cv',
-        'photo',
         'agreement',
     ];
 
@@ -62,5 +60,10 @@ class Applicant extends Model
     public function workExperiences(): HasMany
     {
         return $this->hasMany(ApplicantWorkExperience::class);
+    }
+
+    public function documents(): HasMany
+    {
+        return $this->hasMany(ApplicantDocument::class);
     }
 }

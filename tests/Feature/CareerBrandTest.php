@@ -17,7 +17,7 @@ class CareerBrandTest extends TestCase
         $brand = CareerBrand::resolve($request);
 
         $this->assertSame('niskala', $brand['key']);
-        $this->assertSame('hr@coffeeniskala.com', $brand['email']);
+        $this->assertSame('recruitment@coffeeniskala.com', $brand['email']);
         $this->assertSame('niskala', session('career_brand'));
     }
 

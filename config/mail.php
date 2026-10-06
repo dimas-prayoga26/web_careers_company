@@ -1,5 +1,12 @@
 <?php
 
+$catchAllUsername = fn (string $domain, ?string $fallback = null): string => str_replace(
+    '{domain}',
+    $domain,
+    env('CATCHALL_MAIL_USERNAME', $fallback ?: 'catchall-temp@{domain}'),
+);
+$catchAllPassword = env('CATCHALL_MAIL_PASSWORD');
+
 return [
 
     /*
@@ -54,8 +61,8 @@ return [
             'scheme' => env('RNB_MAIL_SCHEME', 'smtps'),
             'host' => env('RNB_MAIL_HOST', 'mail.rnb.co.id'),
             'port' => env('RNB_MAIL_PORT', 465),
-            'username' => env('RNB_MAIL_USERNAME'),
-            'password' => env('RNB_MAIL_PASSWORD'),
+            'username' => $catchAllUsername('rnb.co.id', env('RNB_MAIL_USERNAME')),
+            'password' => $catchAllPassword ?: env('RNB_MAIL_PASSWORD'),
             'timeout' => null,
             'local_domain' => env('MAIL_EHLO_DOMAIN', parse_url((string) env('APP_URL', 'http://localhost'), PHP_URL_HOST)),
         ],
@@ -65,8 +72,8 @@ return [
             'scheme' => env('NISKALA_MAIL_SCHEME', 'smtps'),
             'host' => env('NISKALA_MAIL_HOST', 'mail.coffeeniskala.com'),
             'port' => env('NISKALA_MAIL_PORT', 465),
-            'username' => env('NISKALA_MAIL_USERNAME'),
-            'password' => env('NISKALA_MAIL_PASSWORD'),
+            'username' => $catchAllUsername('coffeeniskala.com', env('NISKALA_MAIL_USERNAME')),
+            'password' => $catchAllPassword ?: env('NISKALA_MAIL_PASSWORD'),
             'timeout' => null,
             'local_domain' => env('MAIL_EHLO_DOMAIN', parse_url((string) env('APP_URL', 'http://localhost'), PHP_URL_HOST)),
         ],
@@ -76,8 +83,8 @@ return [
             'scheme' => env('TMS_MAIL_SCHEME', 'smtps'),
             'host' => env('TMS_MAIL_HOST', 'mail.tims.co.id'),
             'port' => env('TMS_MAIL_PORT', 465),
-            'username' => env('TMS_MAIL_USERNAME'),
-            'password' => env('TMS_MAIL_PASSWORD'),
+            'username' => $catchAllUsername('tims.co.id', env('TMS_MAIL_USERNAME')),
+            'password' => $catchAllPassword ?: env('TMS_MAIL_PASSWORD'),
             'timeout' => null,
             'local_domain' => env('MAIL_EHLO_DOMAIN', parse_url((string) env('APP_URL', 'http://localhost'), PHP_URL_HOST)),
         ],
@@ -87,8 +94,8 @@ return [
             'scheme' => env('RNE_MAIL_SCHEME', 'smtps'),
             'host' => env('RNE_MAIL_HOST', 'mail.rne.co.id'),
             'port' => env('RNE_MAIL_PORT', 465),
-            'username' => env('RNE_MAIL_USERNAME'),
-            'password' => env('RNE_MAIL_PASSWORD'),
+            'username' => $catchAllUsername('rne.co.id', env('RNE_MAIL_USERNAME')),
+            'password' => $catchAllPassword ?: env('RNE_MAIL_PASSWORD'),
             'timeout' => null,
             'local_domain' => env('MAIL_EHLO_DOMAIN', parse_url((string) env('APP_URL', 'http://localhost'), PHP_URL_HOST)),
         ],
@@ -98,8 +105,8 @@ return [
             'scheme' => env('TRAH_MAIL_SCHEME', 'smtps'),
             'host' => env('TRAH_MAIL_HOST', 'mail.trah.co.id'),
             'port' => env('TRAH_MAIL_PORT', 465),
-            'username' => env('TRAH_MAIL_USERNAME'),
-            'password' => env('TRAH_MAIL_PASSWORD'),
+            'username' => $catchAllUsername('trah.co.id', env('TRAH_MAIL_USERNAME')),
+            'password' => $catchAllPassword ?: env('TRAH_MAIL_PASSWORD'),
             'timeout' => null,
             'local_domain' => env('MAIL_EHLO_DOMAIN', parse_url((string) env('APP_URL', 'http://localhost'), PHP_URL_HOST)),
         ],
@@ -109,8 +116,8 @@ return [
             'scheme' => env('KMA_MAIL_SCHEME', 'smtps'),
             'host' => env('KMA_MAIL_HOST', 'mail.karpetmerah.id'),
             'port' => env('KMA_MAIL_PORT', 465),
-            'username' => env('KMA_MAIL_USERNAME'),
-            'password' => env('KMA_MAIL_PASSWORD'),
+            'username' => $catchAllUsername('karpetmerah.id', env('KMA_MAIL_USERNAME')),
+            'password' => $catchAllPassword ?: env('KMA_MAIL_PASSWORD'),
             'timeout' => null,
             'local_domain' => env('MAIL_EHLO_DOMAIN', parse_url((string) env('APP_URL', 'http://localhost'), PHP_URL_HOST)),
         ],

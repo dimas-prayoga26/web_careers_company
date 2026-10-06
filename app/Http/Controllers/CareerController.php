@@ -4,7 +4,9 @@ namespace App\Http\Controllers;
 
 use App\Mail\ApplicantStatusMail;
 use App\Models\Applicant;
+use App\Models\ApplicantDocument;
 use App\Models\ApplicantStatus;
+use App\Models\Company;
 use App\Models\EducationLevel;
 use App\Models\Gender;
 use App\Models\JobVacancy;
@@ -33,6 +35,7 @@ class CareerController extends Controller
     public function store(Request $request): RedirectResponse
     {
         $brand = CareerBrand::resolve($request);
+        $company = $this->companyForRequest($request, $brand);
 
         $request->merge([
             'expected_salary' => preg_replace('/\D/', '', (string) $request->input('expected_salary')),
@@ -74,7 +77,17 @@ class CareerController extends Controller
             'job_vacancy_id' => [
                 'nullable',
                 'uuid',
-                Rule::exists((new JobVacancy)->getTable(), 'id')->where('status', JobVacancy::STATUS_ACTIVE),
+                Rule::exists((new JobVacancy)->getTable(), 'id')->where(function ($query) use ($company): void {
+                    $query->where('status', JobVacancy::STATUS_ACTIVE);
+
+                    if ($company) {
+                        $query->where('company_id', $company->getKey());
+
+                        return;
+                    }
+
+                    $query->whereRaw('1 = 0');
+                }),
             ],
             'expected_salary' => ['required', 'numeric', 'min:0'],
             'self_resume' => ['required', 'string'],
@@ -100,11 +113,11 @@ class CareerController extends Controller
                 $nameSlug = Str::slug($validated['full_name']) ?: 'applicant';
                 $random = Str::random(5);
 
-                $photoName = $this->moveUploadedFile($request, 'photo', 'files/photo', $nameSlug, $random);
-                $storedFiles[] = ['files/photo', $photoName];
+                $photoDocument = $this->moveUploadedFile($request, 'photo', 'files/photo', $nameSlug, $random);
+                $storedFiles[] = $photoDocument['file_path'];
 
-                $cvName = $this->moveUploadedFile($request, 'cv', 'files/cv', $nameSlug, $random);
-                $storedFiles[] = ['files/cv', $cvName];
+                $cvDocument = $this->moveUploadedFile($request, 'cv', 'files/cv', $nameSlug, $random);
+                $storedFiles[] = $cvDocument['file_path'];
 
                 $applicant = Applicant::create([
                     'job_vacancy_id' => $validated['job_vacancy_id'] ?? null,
@@ -123,12 +136,20 @@ class CareerController extends Controller
                     'expected_salary' => $validated['expected_salary'],
                     'self_resume' => $validated['self_resume'] ?? null,
                     'portfolio_web_address' => $validated['portfolio_web_address'] ?? null,
-                    'cv' => $cvName,
-                    'photo' => $photoName,
                     'agreement' => implode('||', $validated['agreement']),
                     'created_at' => $now,
                     'updated_at' => $now,
                 ]);
+
+                $applicant->documents()->create(array_merge($photoDocument, [
+                    'document_type' => ApplicantDocument::TYPE_PHOTO,
+                    'uploaded_at' => $now,
+                ]));
+
+                $applicant->documents()->create(array_merge($cvDocument, [
+                    'document_type' => ApplicantDocument::TYPE_CV,
+                    'uploaded_at' => $now,
+                ]));
 
                 foreach ($validated['educational_level'] as $index => $educationLevelId) {
                     $applicant->educations()->create([
@@ -156,8 +177,8 @@ class CareerController extends Controller
                 return $applicant->load(['jobVacancy', 'status']);
             });
         } catch (Throwable $exception) {
-            foreach ($storedFiles as [$directory, $filename]) {
-                File::delete(public_path($directory.'/'.$filename));
+            foreach ($storedFiles as $filePath) {
+                File::delete(public_path($filePath));
             }
 
             report($exception);
@@ -205,7 +226,7 @@ class CareerController extends Controller
             'genders' => $this->activeGenders(),
             'maritalStatuses' => $this->activeMaritalStatuses(),
             'educationLevels' => $this->educationLevels(),
-            'jobVacancies' => $this->activeJobVacancies(),
+            'jobVacancies' => $this->activeJobVacancies($request, $brand),
             'turnstileSiteKey' => config('services.turnstile.site_key'),
         ];
     }
@@ -237,13 +258,111 @@ class CareerController extends Controller
         }
     }
 
-    private function activeJobVacancies(): Collection
+    /**
+     * @param  array<string, mixed>  $brand
+     */
+    private function activeJobVacancies(Request $request, array $brand): Collection
     {
         try {
-            return JobVacancy::active()->orderBy('name')->get();
+            $company = $this->companyForRequest($request, $brand);
+
+            if (! $company) {
+                return collect();
+            }
+
+            return JobVacancy::active()
+                ->forCompany($company)
+                ->orderBy('name')
+                ->get();
         } catch (QueryException) {
             return collect();
         }
+    }
+
+    /**
+     * @param  array<string, mixed>  $brand
+     */
+    private function companyForRequest(Request $request, array $brand): ?Company
+    {
+        $websiteHosts = $this->companyWebsiteHosts($request, $brand);
+
+        if ($websiteHosts === []) {
+            return null;
+        }
+
+        try {
+            return Company::where('is_active', true)
+                ->whereNotNull('website')
+                ->get(['id', 'website'])
+                ->first(fn (Company $company): bool => in_array(
+                    $this->normalizedWebsiteHost($company->website),
+                    $websiteHosts,
+                    true,
+                ));
+        } catch (QueryException) {
+            return null;
+        }
+    }
+
+    /**
+     * @param  array<string, mixed>  $brand
+     * @return list<string>
+     */
+    private function companyWebsiteHosts(Request $request, array $brand): array
+    {
+        $hosts = [
+            $this->normalizedCareerHost($request->host()),
+            $this->normalizedWebsiteHost((string) ($brand['website'] ?? '')),
+        ];
+
+        return array_values(array_unique(array_filter($hosts)));
+    }
+
+    private function normalizedCareerHost(string $host): ?string
+    {
+        $host = $this->normalizedHost($host);
+
+        if (! $host) {
+            return null;
+        }
+
+        if (Str::startsWith($host, 'careers.')) {
+            $host = Str::after($host, 'careers.');
+        }
+
+        return $this->normalizedHost($host);
+    }
+
+    private function normalizedWebsiteHost(?string $website): ?string
+    {
+        $website = trim((string) $website);
+
+        if ($website === '') {
+            return null;
+        }
+
+        if (! Str::contains($website, '://')) {
+            $website = 'https://'.$website;
+        }
+
+        return $this->normalizedHost((string) parse_url($website, PHP_URL_HOST));
+    }
+
+    private function normalizedHost(string $host): ?string
+    {
+        $host = Str::of($host)
+            ->lower()
+            ->before(':')
+            ->trim('.')
+            ->toString();
+
+        if ($host === '') {
+            return null;
+        }
+
+        return Str::startsWith($host, 'www.')
+            ? Str::after($host, 'www.')
+            : $host;
     }
 
     private function verifyTurnstile(Request $request): bool
@@ -271,7 +390,10 @@ class CareerController extends Controller
         }
     }
 
-    private function moveUploadedFile(Request $request, string $field, string $directory, string $nameSlug, string $random): string
+    /**
+     * @return array{file_path: string, original_name: string, mime_type: string|null, file_size: int|null}
+     */
+    private function moveUploadedFile(Request $request, string $field, string $directory, string $nameSlug, string $random): array
     {
         $file = $request->file($field);
         $extension = strtolower($file->getClientOriginalExtension());
@@ -279,11 +401,18 @@ class CareerController extends Controller
         $safeOriginalName = Str::slug($originalName) ?: $field;
         $filename = now()->format('ymdHis').'_'.$nameSlug.'_'.$random.'_'.$safeOriginalName.'.'.$extension;
         $targetDirectory = public_path($directory);
+        $filePath = $directory.'/'.$filename;
+        $document = [
+            'file_path' => $filePath,
+            'original_name' => $file->getClientOriginalName(),
+            'mime_type' => $file->getClientMimeType(),
+            'file_size' => $file->getSize(),
+        ];
 
         File::ensureDirectoryExists($targetDirectory);
         $file->move($targetDirectory, $filename);
 
-        return $filename;
+        return $document;
     }
 
     private function uniqueSlug(string $fullName): string
