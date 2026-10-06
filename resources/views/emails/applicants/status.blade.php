@@ -5,6 +5,9 @@
     $applicantName = $applicantName ?? data_get($applicant ?? null, 'full_name', 'Kandidat');
     $positionName = $positionName ?? data_get($applicant ?? null, 'jobVacancy.name', 'Posisi yang dilamar');
     $submittedAt = $submittedAt ?? data_get($applicant ?? null, 'created_at');
+    $submittedAtLabel = $submittedAt
+        ? \Illuminate\Support\Carbon::parse($submittedAt)->timezone('Asia/Jakarta')->locale('id')->translatedFormat('d F Y, H:i')
+        : '-';
     $logoSource = $brand['logo_url'] ?? asset($brand['logo']);
     $primaryColor = $brand['primary_color'] ?? '#304767';
     $accentColor = $brand['accent_color'] ?? '#2563eb';
@@ -100,7 +103,7 @@
                                     <td style="padding: 16px 18px; border-bottom: 1px solid #dbe3ee;">
                                         <p style="margin: 0; color: #64748b; font-size: 12px;">Tanggal Submit</p>
                                         <p style="margin: 6px 0 0; color: #172033; font-size: 15px; font-weight: 700;">
-                                            {{ $submittedAt ? \Illuminate\Support\Carbon::parse($submittedAt)->translatedFormat('d F Y, H:i') : '-' }}
+                                            {{ $submittedAtLabel }}
                                         </p>
                                     </td>
                                 </tr>

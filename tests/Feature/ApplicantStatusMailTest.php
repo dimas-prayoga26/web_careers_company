@@ -6,6 +6,7 @@ use App\Mail\ApplicantStatusMail;
 use App\Models\Applicant;
 use App\Models\ApplicantStatus;
 use App\Models\JobVacancy;
+use Illuminate\Support\Carbon;
 use Tests\TestCase;
 
 class ApplicantStatusMailTest extends TestCase
@@ -27,8 +28,8 @@ class ApplicantStatusMailTest extends TestCase
         $applicant = new Applicant([
             'full_name' => 'Dwi Saputra',
             'email' => 'dwi@example.com',
-            'created_at' => now(),
         ]);
+        $applicant->setCreatedAt(Carbon::parse('2026-10-06 03:15:00', 'UTC'));
         $applicant->setRelation('status', new ApplicantStatus([
             'value' => 3,
             'name' => 'User Interview',
@@ -43,6 +44,7 @@ class ApplicantStatusMailTest extends TestCase
         $mailable->assertSeeInHtml('Status Saat Ini');
         $mailable->assertSeeInHtml('User Interview');
         $mailable->assertSeeInHtml('IT Programmer');
+        $mailable->assertSeeInHtml('06 Oktober 2026, 10:15');
         $mailable->assertDontSeeInHtml('Jika ada pertanyaan');
         $mailable->assertDontSeeInHtml('noreply@coffeeniskala.com');
         $mailable->assertDontSeeInHtml('Track Record Lamaran');
