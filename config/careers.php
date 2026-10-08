@@ -5,9 +5,7 @@ return [
 
     'phone' => '085198210060',
 
-    'aliases' => [
-        'andalan' => 'andalanku',
-    ],
+    'aliases' => [],
 
     'domains' => [
         'localhost' => 'rnb',
@@ -17,10 +15,6 @@ return [
         'careers.rnb.co.id' => 'rnb',
         'www.rnbmanagement.com' => 'rnb',
         'rnbmanagement.com' => 'rnb',
-        'andalanku.com' => 'andalanku',
-        'www.andalanku.com' => 'andalanku',
-        'andalanbersamamigration.com' => 'andalanku',
-        'www.andalanbersamamigration.com' => 'andalanku',
         'karpetmerah.id' => 'kma',
         'www.karpetmerah.id' => 'kma',
         'careers.karpetmerah.id' => 'kma',
@@ -56,18 +50,6 @@ return [
             'primary_color' => '#b01020',
             'accent_color' => '#8c6d00',
             'header_background_color' => '#fff8e6',
-            'header_text_color' => '#172033',
-        ],
-        'andalanku' => [
-            'name' => 'AndalanKu',
-            'logo' => 'images/Logo AndalanKu.png',
-            'favicon' => 'images/Logo AndalanKu.png',
-            'logo_url' => 'https://raw.githubusercontent.com/dimas-prayoga26/web_careers_company/main/public/images/Logo%20AndalanKu.png',
-            'website' => 'https://andalanku.com/',
-            'email' => 'recruitment@andalanku.com',
-            'primary_color' => '#900000',
-            'accent_color' => '#d02020',
-            'header_background_color' => '#fff5f5',
             'header_text_color' => '#172033',
         ],
         'kma' => [
