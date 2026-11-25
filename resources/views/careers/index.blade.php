@@ -253,7 +253,7 @@
                             </div>
                             @if ($turnstileSiteKey)
                                 <div class="turnstile-field">
-                                    <div class="cf-turnstile" data-sitekey="{{ $turnstileSiteKey }}"></div>
+                                    <div class="cf-turnstile" data-sitekey="{{ $turnstileSiteKey }}" data-action="{{ \App\Support\TurnstileVerifier::ACTION_APPLY }}"></div>
                                 </div>
                             @endif
                             <div class="buttons button_space">

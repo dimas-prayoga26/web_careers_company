@@ -12,13 +12,13 @@ use App\Models\Gender;
 use App\Models\JobVacancy;
 use App\Models\MaritalStatus;
 use App\Support\CareerBrand;
+use App\Support\TurnstileVerifier;
 use Illuminate\Database\QueryException;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
-use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
@@ -32,7 +32,7 @@ class CareerController extends Controller
         return view('careers.index', $this->formOptions($request));
     }
 
-    public function store(Request $request): RedirectResponse
+    public function store(Request $request, TurnstileVerifier $turnstile): RedirectResponse
     {
         $brand = CareerBrand::resolve($request);
         $company = $this->companyForRequest($request, $brand);
@@ -99,7 +99,7 @@ class CareerController extends Controller
             'cf-turnstile-response' => ['required', 'string'],
         ]);
 
-        if (! $this->verifyTurnstile($request)) {
+        if (! $turnstile->verify($request, TurnstileVerifier::ACTION_APPLY)) {
             return back()
                 ->withErrors(['cf-turnstile-response' => 'Cloudflare verification failed.'])
                 ->withInput();
@@ -363,31 +363,6 @@ class CareerController extends Controller
         return Str::startsWith($host, 'www.')
             ? Str::after($host, 'www.')
             : $host;
-    }
-
-    private function verifyTurnstile(Request $request): bool
-    {
-        $secretKey = config('services.turnstile.secret_key');
-
-        if (! $secretKey) {
-            return false;
-        }
-
-        try {
-            $response = Http::asForm()
-                ->timeout(10)
-                ->post('https://challenges.cloudflare.com/turnstile/v0/siteverify', [
-                    'secret' => $secretKey,
-                    'response' => $request->input('cf-turnstile-response'),
-                    'remoteip' => $request->ip(),
-                ]);
-
-            return (bool) $response->json('success');
-        } catch (Throwable $exception) {
-            report($exception);
-
-            return false;
-        }
     }
 
     /**
